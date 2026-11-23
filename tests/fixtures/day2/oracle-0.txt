@@ -1,0 +1,1 @@
+{"last_updated_timestamp": "2026-11-20T10:00:00Z", "regions": [{"region": "ca-toronto-1", "cidrs": [{"cidr": "140.204.0.0/16", "tags": ["OCI"]}, {"cidr": "134.70.112.0/22", "tags": ["OSN", "OBJECT_STORAGE"]}]}, {"region": "ca-montreal-1", "cidrs": [{"cidr": "155.248.128.0/18", "tags": ["OCI"]}]}, {"region": "us-ashburn-1", "cidrs": [{"cidr": "129.213.0.0/16", "tags": ["OCI"]}]}]}

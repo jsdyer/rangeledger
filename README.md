@@ -1,134 +1,53 @@
-# CoolCode browser tool template
+# Range Ledger
 
-A starting point for independent tools at `coolcode.ca/<repo>/`: a working local-text
-example, responsive UI, Python standard-library build, Node tests, PR checks and Pages
-publication. No npm install is needed.
+A daily record of the IP address ranges that major cloud and CDN providers publish, with what was added or removed each day, a lookup for any address, and allowlist exports. Published at **https://coolcode.ca/rangeledger/**.
 
-## Using the example
+| Provider | Published file | Grouped by |
+|---|---|---|
+| Cloudflare | `www.cloudflare.com/ips-v4`, `/ips-v6` | IPv4 / IPv6 list |
+| Amazon Web Services | `ip-ranges.amazonaws.com/ip-ranges.json` | Region and service |
+| Google Cloud | `www.gstatic.com/ipranges/cloud.json` | Region |
+| Fastly | `api.fastly.com/public-ip-list` | IPv4 / IPv6 list |
+| Oracle Cloud | `docs.oracle.com/iaas/tools/public_ip_ranges.json` | Region and tags |
+| GitHub | `api.github.com/meta` (hooks, web, api, git, pages, packages, importer) | Service |
+
+Canadian regions are highlighted: AWS `ca-central-1` and `ca-west-1`, Google Cloud `northamerica-northeast1` and `-2`, and Oracle `ca-toronto-1` and `ca-montreal-1`.
+
+## Reading the results
 
 <!-- coolcode:guide -->
-The first occurrence of each trimmed line keeps its place. Compare the output with the original text before copying the result.
+Paste an address into "Check an address" to see which provider publishes it, in which region or service, and whether that region is Canadian. "What changed" lists, by day, every prefix a provider added or removed. A move between regions shows as one removal and one addition. "Build an allowlist" turns a provider's current list, filtered by family, region, service or Canadian regions, into plain text, nginx `allow` rules or CSV. Rebuild from the newest snapshot before you rely on one. A provider marked "stale" couldn't be refreshed that day and shows its last good list.
 <!-- /coolcode:guide -->
 
-For a real tool, replace this paragraph with one or two plain-text sentences
-about an example, a limit or how to interpret the results. Keep the source,
-coverage, refresh behaviour and a worked example in this README as appropriate.
-When updating a tool, revise any details its behaviour has changed and keep the
-homepage's shorter data-source sentence in `tool.json` accurate.
-The hub imports the marked note into the catalogue README.
+- Prefixes are shown in canonical form (lowercase IPv6, host bits cleared). Duplicate listings, such as an AWS prefix published for both `AMAZON` and `EC2`, merge into one row with both services.
+- "Published" is the provider's own timestamp where its file has one (AWS, Google Cloud and Oracle). Otherwise only the retrieval time is known.
+- Changes start from the first snapshot. Each day is compared with the newest snapshot from an earlier day, so re-running the same day doesn't double-count.
 
-## One-time template setup
+## Expand or customize
 
-Enable **Settings → General → Template repository** here. This repository does not
-need Pages enabled: its workflow builds/tests but intentionally skips deployment.
-New copies also skip deployment until `scripts/init.py` sets the tool ID to match
-their repository name. This lets you create the repo before configuring Pages.
+Settings live in **`web/config.json`**:
 
-## Start a new tool
+| Key | Meaning |
+|---|---|
+| `providers` | Each provider: `id`, `name`, `format` (`text`, `aws`, `google`, `fastly`, `oracle`, `github`), `urls`, `scope_label`, optional `canadian_scopes`, and for GitHub `github_keys` (which lists from `/meta` to track). |
+| `keep_snapshots` | Full daily snapshots kept and selectable (default 14). |
+| `history_days` | How long the change log is kept (default 365). |
+| `max_drop_ratio` | If a provider's list suddenly shrinks by more than this share (default 0.5), the update is refused and the previous list is kept as stale. |
+| `min_providers` | A snapshot needs at least this many fresh providers to publish (default 3). |
 
-1. Select **Use this template → Create a new repository**, choose owner `jsdyer`,
-   a unique lowercase name such as `my-tool`, and public visibility.
-2. Clone the new repository. Use Python 3.12+ and Node 24+.
-3. Set the identity, using a slug that matches the repository name:
+Any provider that publishes a plain list of prefixes, one per line, can be added with the `text` format. For example: `{ "id": "mycdn", "name": "My CDN", "format": "text", "urls": ["https://example.com/ips.txt"], "scope_label": "List" }`. To track GitHub Actions runners, add `"actions"` to `github_keys`; it's several thousand prefixes. Adding a Canadian region, such as a new AWS one, means appending it to `canadian_scopes`.
 
-```sh
-python3 scripts/init.py my-tool --title "My Tool" --description "Describe what this tool does."
-```
+**Refresh and publish:** the workflow runs daily at 14:41 UTC and on every push to `main`: tests, today's snapshot, build, deploy. To refresh without pushing, use **Actions → Browser tool · Check and publish → Run workflow**. Snapshots and the change log persist in the Actions cache. Configuration changes apply from the next snapshot, and earlier snapshots keep the providers they were taken with.
 
-Review the category, tags and icon in `tool.json`. `access: "browser"` tells the main
-catalogue that the tool works immediately without installation. `--owner` supports a different
-GitHub owner, but only projects owned by `jsdyer` inherit the CoolCode domain.
-
-4. Replace the example in `web/` and its tests. Update the privacy explanation,
-   source attribution and README to describe the real tool.
-5. Test and preview:
+## Develop and test
 
 ```sh
 node --test tests/*.test.mjs
 python3 -m unittest discover -s tests -v
+node scripts/capture.mjs --fixtures tests/fixtures/day1 --now 2026-11-22T14:00:00Z
+node scripts/capture.mjs --fixtures tests/fixtures/day2 --now 2026-11-23T14:00:00Z
 python3 scripts/build.py
 python3 -m http.server 8000 --directory dist
 ```
 
-Open `http://localhost:8000/`. The example trims lines, skips blanks and removes exact
-duplicates, preserving first-seen order and capitalization. It processes the text in tab memory. Update that explanation if your app behaves differently.
-
-CI also tests the browser flow and mobile layout at a project subpath. Replace the
-sample assertions in `tests/browser_smoke.py` when implementing your own UI. To run
-that check locally (optional for ordinary preview):
-
-```sh
-python3 -m venv .venv
-. .venv/bin/activate
-python3 -m pip install -r tests/browser-requirements.txt
-python3 -m playwright install --with-deps chromium
-python3 tests/browser_smoke.py
-```
-
-Playwright is a test-only dependency; the app and its static build do not use it.
-
-## Expand or customize
-
-Every implemented tool should replace this section with its actual configuration
-path and a working example. A small `config.json` can hold default entities,
-query presets, source choices and request limits. Those defaults should be useful
-starting points, while visitors can enter other valid inputs whenever the source
-supports them. Keep provider limits explicit and separate from the starter list.
-
-Derive counts, filters and item validation from the current data. Do not require
-exactly the initial number of items. Add a test that expands the configuration,
-and keep historical captures readable when their coverage differs from today's
-watchlist. Display the selected capture date accurately.
-
-Document which changes need only a normal code push and which also need a data
-refresh. Include the refresh command or exact GitHub workflow and input, followed
-by the publication step. A successful code build need not mean a new collection
-has been fetched. The starter itself has no external collection or refresh.
-
-## Publish and register
-
-When the actual tool is ready, in the **new tool repository** set **Settings → Pages → Build and deployment →
-Source → GitHub Actions**. Push to `main`, or manually run **Browser tool · Check and
-publish** after enabling Pages. If the initial deployment ran before Pages was enabled,
-enable it and rerun. PRs only check/build and provide a downloadable preview artifact.
-
-Keep `{{VISIT_COUNTER}}` in the page head and `{{ISSUE_LINK}}` in the footer when replacing the starter UI. The build enables these for initialized CoolCode repositories. The shared counter records aggregate opens on coolcode.ca by public tool ID. Toolbox inputs and URL parameters are excluded. The issue link opens a reporting form with the tool already selected.
-
-Keep app-owned asset paths and module imports relative. Check `https://coolcode.ca/my-tool/`.
-Do not add a CNAME or set `coolcode.ca` as this project's custom domain; the account
-site supplies it. Only successful `main` builds deploy.
-
-After verifying the app, copy the reviewed object from `tool.json` into `data/tools.json`
-in [the main site](https://github.com/jsdyer/jsdyer.github.io). Each tool still builds
-independently. Update the hub record when listing metadata changes; the hub is the
-authority for discovery. Ordinary app updates touch only this repository.
-
-The main site separates **Use in your browser** from **Install yourself**. An app
-that asks for a file is still a browser tool. Standalone Linux packages should start
-in their own repositories with their own build/release workflow, rather than copying
-this browser-only scaffold. Their hub record uses `access: "install"`, links to an
-installation guide, and includes `requirements`.
-
-## Files
-
-| Path | Purpose |
-| --- | --- |
-| `tool.json` | Page metadata and a ready-to-copy catalogue record |
-| `web/` | HTML, responsive CSS, DOM interactions and separate model logic |
-| `scripts/build.py` | Escape metadata and build `web/` into `dist/` |
-| `scripts/init.py` | Set a new project's identity |
-| `tests/` | Application and builder tests |
-| `.github/workflows/pages.yml` | Check PRs and publish successful main builds |
-| `AGENTS.md` | Instructions for future coding work |
-
-Namespace optional storage as `coolcode:<tool-id>:<key>`; CoolCode paths share a
-browser origin. Don't save pasted text/uploads by default. Document external APIs
-and send only the information needed for the selected action. Never embed secrets.
-
-Scheduled refresh is opt-in. Validate source data before deploying, display its date,
-and preserve the last good deployment on failure. Public-repository schedules can
-stop after 60 days without repository activity.
-
-Templates don't propagate future edits automatically. Adopt fixes explicitly and
-consider a versioned reusable workflow once several tools confirm the shared process.
-Choose and add the intended software license before distributing a new project.
+`tests/fixtures/day1` and `day2` hold small files in each provider's real format. `tests/browser_smoke.py` checks snapshot switching, the lookup, the change log, the allowlist export and the mobile layout at `/rangeledger/`.

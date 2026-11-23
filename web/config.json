@@ -1,0 +1,14 @@
+{
+  "providers": [
+    { "id": "cloudflare", "name": "Cloudflare", "format": "text", "urls": ["https://www.cloudflare.com/ips-v4", "https://www.cloudflare.com/ips-v6"], "scope_label": "List" },
+    { "id": "aws", "name": "Amazon Web Services", "format": "aws", "urls": ["https://ip-ranges.amazonaws.com/ip-ranges.json"], "scope_label": "Region", "canadian_scopes": ["ca-central-1", "ca-west-1"] },
+    { "id": "google-cloud", "name": "Google Cloud", "format": "google", "urls": ["https://www.gstatic.com/ipranges/cloud.json"], "scope_label": "Region", "canadian_scopes": ["northamerica-northeast1", "northamerica-northeast2"] },
+    { "id": "fastly", "name": "Fastly", "format": "fastly", "urls": ["https://api.fastly.com/public-ip-list"], "scope_label": "List" },
+    { "id": "oracle", "name": "Oracle Cloud", "format": "oracle", "urls": ["https://docs.oracle.com/iaas/tools/public_ip_ranges.json"], "scope_label": "Region", "canadian_scopes": ["ca-toronto-1", "ca-montreal-1"] },
+    { "id": "github", "name": "GitHub", "format": "github", "urls": ["https://api.github.com/meta"], "scope_label": "Service", "github_keys": ["hooks", "web", "api", "git", "pages", "packages", "importer"] }
+  ],
+  "keep_snapshots": 14,
+  "history_days": 365,
+  "max_drop_ratio": 0.5,
+  "min_providers": 3
+}

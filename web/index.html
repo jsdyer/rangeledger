@@ -13,21 +13,55 @@
   <a class="skip" href="#main">Skip to content</a>
   <header><a href="https://coolcode.ca/">← CoolCode.ca</a><a href="{{SOURCE_URL}}">Source &amp; instructions ↗</a></header>
   <main id="main">
-    <p class="eyebrow">Browser tool starter</p>
+    <p class="eyebrow">Networks &amp; routing · published cloud and CDN address ranges</p>
     <h1>{{TITLE}}</h1>
     <p class="intro">{{DESCRIPTION}}</p>
-    <section aria-labelledby="example-title">
-      <h2 id="example-title">Clean a list</h2>
-      <p>Trim spaces, skip blank lines and remove exact duplicates. Capitalization stays distinct.</p>
-      <div class="panels">
-        <div><label for="input">Your lines</label><textarea id="input" rows="10" maxlength="100000" spellcheck="false" placeholder="Paste one item per line"></textarea></div>
-        <div><label for="output">Cleaned lines</label><textarea id="output" rows="10" readonly spellcheck="false"></textarea></div>
-      </div>
-      <div class="actions"><button id="sample" type="button">Load example</button><button id="clear" type="button">Clear</button><button id="copy" type="button" hidden>Copy result</button></div>
-      <p id="status" role="status" aria-live="polite">Paste a list to begin.</p>
-      <noscript><p>This tool needs JavaScript to process your text. The source is available above.</p></noscript>
+
+    <div class="capture-bar">
+      <label for="snapshot">Snapshot</label>
+      <select id="snapshot" disabled><option>Loading…</option></select>
+      <p id="snapshot-note" role="status" aria-live="polite"></p>
+    </div>
+    <noscript><p>This tool needs JavaScript to display the snapshots.</p></noscript>
+
+    <section aria-labelledby="providers-title">
+      <h2 id="providers-title">Providers</h2>
+      <div class="table-wrap"><table id="providers"></table></div>
+      <p class="small">"Published" is the provider's own timestamp, where its file includes one. "Canadian" counts prefixes in regions the provider labels as Canadian. A stale provider couldn't be refreshed in this snapshot, so it shows its last good list.</p>
     </section>
-    <aside aria-label="Privacy"><strong>Stays on your device.</strong> The browser processes your text in this tab. Reloading clears it.</aside>
+
+    <section aria-labelledby="lookup-title">
+      <h2 id="lookup-title">Check an address</h2>
+      <form id="lookup" class="row-form">
+        <label for="ip">IPv4 or IPv6 address</label>
+        <div class="row"><input id="ip" autocomplete="off" spellcheck="false" placeholder="15.156.10.20 or 2606:4700::1" maxlength="60"><button type="submit">Look up</button></div>
+      </form>
+      <div id="lookup-result" role="status" aria-live="polite"></div>
+    </section>
+
+    <section aria-labelledby="changes-title">
+      <h2 id="changes-title">What changed</h2>
+      <div class="filters"><label for="change-provider">Provider</label><select id="change-provider"><option value="">All providers</option></select></div>
+      <div id="changes"></div>
+    </section>
+
+    <section aria-labelledby="export-title">
+      <h2 id="export-title">Build an allowlist</h2>
+      <div class="export-grid">
+        <label>Provider <select id="x-provider"></select></label>
+        <label>Family <select id="x-family"><option value="all">IPv4 and IPv6</option><option value="4">IPv4 only</option><option value="6">IPv6 only</option></select></label>
+        <label id="x-scope-label">Region / list <select id="x-scope"><option value="">Any</option></select></label>
+        <label>Service <select id="x-service"><option value="">Any</option></select></label>
+        <label class="check"><input type="checkbox" id="x-canada"> Canadian regions only</label>
+        <label>Format <select id="x-format"><option value="plain">Plain list</option><option value="nginx">nginx allow rules</option><option value="csv">CSV</option></select></label>
+      </div>
+      <p id="x-count" class="small" role="status" aria-live="polite"></p>
+      <textarea id="x-preview" rows="8" readonly spellcheck="false" aria-label="Allowlist preview"></textarea>
+      <div class="actions"><button type="button" id="x-download">Download</button><button type="button" class="quiet-btn" id="x-copy">Copy</button></div>
+      <p class="small">Lists change. Rebuild yours from the newest snapshot before relying on it, and keep provider ranges narrow: allowing all of a cloud provider allows every customer on it.</p>
+    </section>
+
+    <aside aria-label="Privacy and sources"><strong>What leaves your browser.</strong> Nothing: a daily build downloaded the providers' official range files ahead of time, and lookups and exports run in this page. Sources: Cloudflare (ips-v4, ips-v6), AWS (ip-ranges.json), Google Cloud (cloud.json), Fastly (public-ip-list), Oracle Cloud (public_ip_ranges.json) and GitHub (api.github.com/meta).</aside>
   </main>
   <footer>Part of <a href="https://coolcode.ca/">the CoolCode collection</a>. {{ISSUE_LINK}}</footer>
 </body>

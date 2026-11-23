@@ -1,16 +1,28 @@
 {
-  "id": "coolcode-tool-template",
-  "title": "CoolCode Tool Starter",
-  "description": "A browser-only example that trims lines and removes exact duplicates.",
-  "category": "security",
-  "tags": ["text", "lines", "duplicates"],
-  "icon": "scan-search",
-  "url": "/coolcode-tool-template/",
-  "source": "https://github.com/jsdyer/coolcode-tool-template",
+  "id": "rangeledger",
+  "title": "Range Ledger",
+  "description": "Follow the IP ranges published by Cloudflare, AWS, Google Cloud, Fastly, Oracle and GitHub, see what changed each day, and check any address.",
+  "category": "liminal-tools",
+  "tags": [
+    "ip ranges",
+    "cidr",
+    "cloudflare",
+    "aws",
+    "google cloud",
+    "fastly",
+    "oracle",
+    "github",
+    "allowlist",
+    "firewall"
+  ],
+  "icon": "list-filter",
+  "url": "/rangeledger/",
+  "source": "https://github.com/jsdyer/rangeledger",
   "hosting": "project",
   "access": "browser",
   "data_info": {
-    "mode": "local",
-    "detail": "The browser reads the text you paste and compares its lines."
+    "mode": "snapshot",
+    "detail": "Daily snapshots of the IP range files Cloudflare, AWS, Google Cloud, Fastly, Oracle Cloud and GitHub publish, with day-by-day changes.",
+    "cadence": "Daily"
   }
 }
