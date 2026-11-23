@@ -34,6 +34,7 @@ test('every provider format normalises, merging duplicate prefixes', () => {
   assert.equal(M.normalize(P('cloudflare'), [fx('day1', 'cloudflare-0.txt'), fx('day1', 'cloudflare-1.txt')]).entries.length, 7);
   assert.equal(M.normalize(P('fastly'), [fx('day1', 'fastly-0.txt')]).entries.length, 5);
   const oracle = M.normalize(P('oracle'), [fx('day1', 'oracle-0.txt')]);
+  assert.equal(M.normalize(P('oracle'), [JSON.stringify({ last_updated_timestamp: '2026-10-28T02:47:53.012304', regions: [{ region: 'x', cidrs: [{ cidr: '10.0.0.0/8' }] }] })]).published, '2026-10-28T02:47:53.012304Z');
   assert.deepEqual(oracle.entries.find((e) => e[1] === 'ca-toronto-1' && e[0].startsWith('134')), ['134.70.112.0/22', 'ca-toronto-1', ['OBJECT_STORAGE', 'OSN']]);
   const gh = M.normalize(P('github'), [fx('day1', 'github-0.txt')]);
   assert.equal(gh.entries.find((e) => e[0] === '192.30.252.0/22')[1], 'hooks, web, git');

@@ -66,7 +66,7 @@ const FORMATS = {
   },
   google: ([body]) => {
     const j = JSON.parse(body);
-    return { published: j.creationTime ? (/Z|[+-]\d\d:?\d\d$/.test(j.creationTime) ? j.creationTime : `${j.creationTime}Z`) : null, rows: (j.prefixes || []).map((p) => [p.ipv4Prefix || p.ipv6Prefix, p.scope, p.service ? [p.service] : []]) };
+    return { published: j.creationTime || null, rows: (j.prefixes || []).map((p) => [p.ipv4Prefix || p.ipv6Prefix, p.scope, p.service ? [p.service] : []]) };
   },
   fastly: ([body]) => {
     const j = JSON.parse(body);
@@ -89,7 +89,10 @@ const FORMATS = {
 export function normalize(provider, bodies) {
   const fn = FORMATS[provider.format];
   if (!fn) throw new Error(`Unknown format ${provider.format}`);
-  const { published, rows } = fn(bodies, provider);
+  const raw = fn(bodies, provider);
+  const rows = raw.rows;
+  // Some providers omit the time zone; their timestamps are UTC.
+  const published = raw.published && !/Z$|[+-]\d\d:?\d\d$/.test(raw.published) ? `${raw.published}Z` : raw.published;
   const byPrefix = new Map();
   let invalid = 0;
   for (const [raw, scope, services] of rows) {
